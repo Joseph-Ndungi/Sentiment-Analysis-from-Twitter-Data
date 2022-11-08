@@ -8,29 +8,6 @@ import pandas as pd
 #import time
 import requests
 load_dotenv()
-
-# consumer_key = os.environ["API_KEY"]
-# consumer_secret = os.environ["API_KEY_SECRET"]
-# access_token = os.environ["ACCESS_TOKEN"]
-# access_token_secret = os.environ["ACCESS_TOKEN_SECRET"]
-
-# auth = tweepy.OAuth1UserHandler(
-#   consumer_key, 
-#   consumer_secret, 
-#   access_token, 
-#   access_token_secret
-# )
-
-# api = tweepy.API(auth)
-
-# #fetch tweets and save as a df
-# tweets = api.search_tweets("MUFC", tweet_mode="extended", count=100)
-
-# for tweet in tweets:
-#     # tweets = api.user_timeline(screen_name="#MUFC", count=200, include_rts=False, tweet_mode="extended")
-#     df = pd.DataFrame(data=[tweet.full_text for tweet in tweets], columns=["Tweets"])
-#     print(df.head())
-#def crypto_sentiments():
     
 client = tw.Client(bearer_token = os.environ["Bearer_Token"], 
                 consumer_key = os.environ["API_KEY"], 
@@ -42,14 +19,19 @@ client = tw.Client(bearer_token = os.environ["Bearer_Token"],
 
 # Define query
 query = '(crypto OR cryptocurrency OR cryptocurrencies) -is:retweet lang:en'
-
+'''
+[attachments,author_id,context_annotations,conversation_id,created_at,edit_controls,edit_history_tweet_ids,
+entities,geo,id,in_reply_to_user_id,lang,non_public_metrics,organic_metrics,possibly_sensitive,promoted_metrics
+,public_metrics,referenced_tweets,reply_settings,source,text,withheld]'''
 # Get 100 tweets
 tweets = client.search_recent_tweets(query = query, 
-                                    #tweet_fields = ['author_id', 'created_at'],
-                                    max_results = 100)
+                                    tweet_fields = ["author_id","text","geo","public_metrics","possibly_sensitive",
+                                    #"promoted_metrics","organic_metrics","non_public_metrics"
+                                    "referenced_tweets","reply_settings","source","withheld"],
+                                    max_results = 10)
 # Save data as dictionary
 tweets_dict = tweets.json() 
-
+print(tweets_dict)
 # Extract "data" value from dictionary
 tweets_data = tweets_dict['data'] 
 
@@ -57,6 +39,7 @@ tweets_data = tweets_dict['data']
 df = pd.json_normalize(tweets_data) 
 print(df.head())
 print(df.columns)
+# Save to csv
+df.to_csv('tweets.csv', index = False)
 
-#return df.head()
 
