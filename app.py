@@ -18,7 +18,9 @@ client = tw.Client(bearer_token = os.environ["Bearer_Token"],
                 wait_on_rate_limit=True)
 
 # Define query
-query = '(crypto OR cryptocurrency OR cryptocurrencies) -is:retweet lang:en'
+#query = '(crypto OR cryptocurrency OR cryptocurrencies) -is:retweet lang:en'
+#query for Safaricom, Mpesa
+query = '(Safaricom OR Mpesa) -is:retweet lang:en'
 '''
 [attachments,author_id,context_annotations,conversation_id,created_at,edit_controls,edit_history_tweet_ids,
 entities,geo,id,in_reply_to_user_id,lang,non_public_metrics,organic_metrics,possibly_sensitive,promoted_metrics
@@ -27,18 +29,17 @@ entities,geo,id,in_reply_to_user_id,lang,non_public_metrics,organic_metrics,poss
 tweets = client.search_recent_tweets(query = query, 
                                     tweet_fields = ["author_id","text","geo","public_metrics","possibly_sensitive",
                                     #"promoted_metrics","organic_metrics","non_public_metrics"
-                                    "referenced_tweets","reply_settings","source","withheld"],
-                                    max_results = 10)
+                                    "referenced_tweets","reply_settings","source","withheld"],max_results = 100)
 # Save data as dictionary
 tweets_dict = tweets.json() 
-print(tweets_dict)
+#print(tweets_dict)
 # Extract "data" value from dictionary
 tweets_data = tweets_dict['data'] 
 
 # Transform to pandas Dataframe
 df = pd.json_normalize(tweets_data) 
-print(df.head())
-print(df.columns)
+# print(df.head())
+# print(df.columns)
 # Save to csv
 df.to_csv('tweets.csv', index = False)
 
