@@ -39,7 +39,7 @@ tweets_data = tweets_dict['data']
 # Transform to pandas Dataframe
 df = pd.json_normalize(tweets_data) 
 # print(df.head())
-# print(df.columns)
+
 # Save to csv
 df.to_csv('tweets.csv', index = False)
 
