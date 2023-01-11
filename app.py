@@ -20,7 +20,7 @@ client = tw.Client(bearer_token = os.environ["Bearer_Token"],
 # Define query
 #query = '(crypto OR cryptocurrency OR cryptocurrencies) -is:retweet lang:en'
 #query for Safaricom, Mpesa
-query = '(Safaricom OR Mpesa) -is:retweet lang:en'
+query = '(twitter) -is:retweet lang:en'
 '''
 [attachments,author_id,context_annotations,conversation_id,created_at,edit_controls,edit_history_tweet_ids,
 entities,geo,id,in_reply_to_user_id,lang,non_public_metrics,organic_metrics,possibly_sensitive,promoted_metrics
