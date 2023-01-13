@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-#Put your Bearer Token in the parenthesis below
+
 client = tweepy.Client(bearer_token=os.environ["Bearer_Token"])
 
 
