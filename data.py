@@ -21,10 +21,10 @@ import itertools
 tweets_list = list(itertools.chain(tweets))
 #print(tweets_list)
 # remove '<' and '>' from the tweets and make a dictionary
-tweets_dict = [dict((k, v) for k, v in d.items() if k != 'text' and k != 'author_id') for d in tweets_list]
+tweets_dict = [dict((k, v) for k, v in d.items() if k != 'id' and k != 'edit_history_tweet_ids') for d in tweets_list]
 #print(tweets_dict)
 # Transform to pandas Dataframe
 df = pd.json_normalize(tweets_dict)
-#print(df.head())
+print(df.head())
 # Save to csv
 df.to_csv('tweets.csv', index = False)
