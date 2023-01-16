@@ -18,7 +18,7 @@ client = tw.Client(bearer_token = os.environ["Bearer_Token"],
                 wait_on_rate_limit=True)
 
 # Define query
-query = '(twitter) -is:retweet lang:en'
+query = '(HELB) -is:retweet lang:en'
 '''
 [attachments,author_id,context_annotations,conversation_id,created_at,edit_controls,edit_history_tweet_ids,
 entities,geo,id,in_reply_to_user_id,lang,non_public_metrics,organic_metrics,possibly_sensitive,promoted_metrics
@@ -39,6 +39,6 @@ df = pd.json_normalize(tweets_data)
 # print(df.head())
 
 # Save to csv
-df.to_csv('tweets.csv', index = False)
+df.to_csv('app.csv', index = False)
 
 
