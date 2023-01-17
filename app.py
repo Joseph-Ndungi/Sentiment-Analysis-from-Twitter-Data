@@ -41,4 +41,8 @@ df = pd.json_normalize(tweets_data)
 # Save to csv
 df.to_csv('app.csv', index = False)
 
-
+'''
+TODO:
+ Text Preprocessing
+ Use roberta model to predict the sentiment of the tweets
+'''
