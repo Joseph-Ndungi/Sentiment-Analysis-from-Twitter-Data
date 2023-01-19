@@ -5,9 +5,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-
 client = tweepy.Client(bearer_token=os.environ["Bearer_Token"])
-
 
 query = '(twitter) -is:retweet lang:en'
 tweets = tweepy.Paginator(client.search_recent_tweets, query=query,
