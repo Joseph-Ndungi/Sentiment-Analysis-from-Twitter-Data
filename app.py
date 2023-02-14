@@ -82,19 +82,13 @@ df = df.to_json(orient='records')
 df = json.loads(df)
 # print(df)
 
-# # Save to csv
-# df.to_csv('app.csv', index = False)
+
 
 '''
 TODO:
  Text Preprocessing
  Use roberta model to predict the sentiment of the tweets
 '''
-
-#from df read text column
-
-
-
 
 model = "cardiffnlp/twitter-roberta-base-sentiment-latest"
 hf_token = "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"
@@ -111,7 +105,11 @@ def analysis(payload):
 
 payload = {"inputs": df}
 response = analysis(payload)
+
+
 print(response)
 
-#append the response to the df with the keys as the columns and the values as the rows of the columns
+
+
+  
 
