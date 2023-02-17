@@ -2,8 +2,9 @@ import csv
 import json
 import pandas as pd
 import requests
-
-
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+from wordcloud import STOPWORDS
 #read csv
 df = pd.read_csv('tweets.csv')
 
@@ -51,7 +52,6 @@ df = df.apply(lambda x: " ".join(x for x in x.split() if x not in STOPWORDS))
 df = df.to_json(orient='records')
 df = json.loads(df)
 
-
 '''
 TODO:
  Text Preprocessing
@@ -75,16 +75,36 @@ payload = {"inputs": df}
 response = analysis(payload)
 #print(response)
 
-# jsonFile =  [[{'label': 'negative', 'score': 0.7915955781936646}, {'label': 'neutral', 'score': 0.19622743129730225}, {'label': 'positive', 'score': 0.012176979333162308}], [{'label': 'neutral', 'score': 0.7174496054649353}, {'label': 'negative', 'score': 0.1782716065645218}, {'label': 'positive', 'score': 0.10427877306938171}], [{'label': 
-#     'negative', 'score': 0.7504093050956726}, {'label': 'neutral', 'score': 0.23351198434829712}, {'label': 'positive', 'score': 0.016078684478998184}]] #dataFile = json.loads(jsonFile)pd.DataFrame(jsonFile[0])
-
 jsonFile= response
 df = pd.DataFrame(columns=['label', 'score'])
 for lst in jsonFile:  
     maxScore = max(lst, key=lambda d: d['score'])
     df = df.append({'label': maxScore['label'], 'score': maxScore['score']}, ignore_index=True)
 
-print(df.head(10))
+# print(df.head(10))
+#append df to df with tweets
+df = pd.concat([df, pd.read_csv('cleaned.csv')], axis=1)
+#df = df.drop(columns=['Unnamed: 0'])
+#print(df.head(10))
 
 #save csv
 #df.to_csv('sentiment.csv', index = False)
+
+# sentiment_counts = df.groupby(['label']).size()
+# print(sentiment_counts)
+
+# #plot
+# sentiment_counts.plot(kind='pie', autopct='%1.0f%%')
+# plt.show()
+
+#print(df)
+
+#wordcloud
+positive_tweets = df['text'][df["label"] == 'neutral']
+
+stop_words = ["https", "co", "RT"] + list(STOPWORDS)
+positive_wordcloud = WordCloud(max_font_size=50, max_words=50, background_color="white", stopwords = stop_words).generate(str(positive_tweets))
+plt.figure()
+plt.imshow(positive_wordcloud, interpolation="bilinear")
+plt.axis("off")
+plt.show()
