@@ -82,9 +82,9 @@ jsonFile= response
 df = pd.DataFrame(columns=['label', 'score'])
 for lst in jsonFile:  
     maxScore = max(lst, key=lambda d: d['score'])
-    df = df.append({'tweet': dataDf,'label': maxScore['label'], 'score': maxScore['score']}, ignore_index=True)
+    df = df.append({'label': maxScore['label'], 'score': maxScore['score']}, ignore_index=True)
 
 print(df.head(10))
 
 #save csv
-df.to_csv('sentiment.csv', index = False)
+#df.to_csv('sentiment.csv', index = False)
