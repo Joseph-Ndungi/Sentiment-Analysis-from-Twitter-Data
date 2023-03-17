@@ -23,6 +23,6 @@ tweets_dict = [dict((k, v) for k, v in d.items() if k != 'id' and k != 'edit_his
 #print(tweets_dict)
 # Transform to pandas Dataframe
 df = pd.json_normalize(tweets_dict)
-print(df.head())
+#print(df.head())
 # Save to csv
 df.to_csv('tweets.csv', index = False)

@@ -7,7 +7,7 @@ from wordcloud import WordCloud
 from wordcloud import STOPWORDS
 #read csv
 df = pd.read_csv('tweets.csv')
-
+df.describe()
 # print(df.head())
 df= df['text']
 #remove special characters
@@ -58,9 +58,9 @@ TODO:
  Use roberta model to predict the sentiment of the tweets
 '''
 
-model = "cardiffnlp/twitter-roberta-base-sentiment-latest"
+#model = "cardiffnlp/twitter-roberta-base-sentiment-latest"
 hf_token = "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"
-
+model="cardiffnlp/twitter-xlm-roberta-base-sentiment"
 
 API_URL = "https://api-inference.huggingface.co/models/" + model
 headers = {"Authorization": "Bearer %s" % (hf_token)}
@@ -77,13 +77,14 @@ response = analysis(payload)
 
 jsonFile= response
 df = pd.DataFrame(columns=['label', 'score'])
+df.head()
 for lst in jsonFile:  
     maxScore = max(lst, key=lambda d: d['score'])
     df = df.append({'label': maxScore['label'], 'score': maxScore['score']}, ignore_index=True)
 
 # print(df.head(10))
 #append df to df with tweets
-df = pd.concat([df, pd.read_csv('cleaned.csv')], axis=1)
+df = pd.concat([df, pd.read_csv('tweets.csv')], axis=1)
 #df = df.drop(columns=['Unnamed: 0'])
 #print(df.head(10))
 
@@ -100,11 +101,13 @@ df = pd.concat([df, pd.read_csv('cleaned.csv')], axis=1)
 #print(df)
 
 #wordcloud
-positive_tweets = df['text'][df["label"] == 'neutral']
+positive_tweets = df['text'][df["label"] == 'positive']
+positive_tweets.to_csv('positivetweets.csv', index = False)
 
 stop_words = ["https", "co", "RT"] + list(STOPWORDS)
-positive_wordcloud = WordCloud(max_font_size=50, max_words=50, background_color="white", stopwords = stop_words).generate(str(positive_tweets))
-plt.figure()
-plt.imshow(positive_wordcloud, interpolation="bilinear")
+
+wordcloud = WordCloud(width = 3000, height = 2000, random_state=1, background_color='black', colormap='Set2', collocations=False, stopwords = stop_words, max_words = 200).generate(str(positive_tweets))
+# Display the generated image
+plt.imshow(wordcloud, interpolation='bilinear')
 plt.axis("off")
 plt.show()
