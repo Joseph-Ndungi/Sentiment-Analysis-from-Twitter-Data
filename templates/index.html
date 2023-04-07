@@ -6,7 +6,7 @@
     <!-- <meta charset="UTF-8" /> -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
-    <title>Uber Analytics Expenditure</title>
+    <title>Sentimental Analysis</title>
     <link rel="icon" href="https://icons.getbootstrap.com/assets/icons/credit-card-fill.svg" type="image/x-icon" />
     <link rel="stylesheet" href="{{url_for('static',filename='css/admin.css')}}" />
     <!-- Bootstrap CSS -->
@@ -40,13 +40,18 @@
                         <span class="ml-2">Dashboard</span>
                     </a>
 
-                    <a href=""
-                        class="list-group-item list-group-item-action {{ 'active' if active_page == 'rawData' else '' }} border-0 align-items-center">
+                    <a href="{{url_for('sentiments')}}"
+                        class="list-group-item list-group-item-action {{ 'active' if active_page == 'query' else '' }} border-0 align-items-center">
                         <span class="bi bi-file-person"></span>
                         <span class="ml-2">Query</span>
                     </a>
+                    <a href="{{url_for('analysis')}}"
+                    class="list-group-item list-group-item-action {{ 'active' if active_page == 'analysis' else '' }} border-0 align-items-center">
+                    <span class="bi bi-file-person"></span>
+                    <span class="ml-2">Analysis</span>
+                </a>
                     <a href=""
-                        class="list-group-item list-group-item-action {{ 'active' if active_page == 'company' else '' }} border-0 align-items-center">
+                        class="list-group-item list-group-item-action {{ 'active' if active_page == 'nudge' else '' }} border-0 align-items-center">
                         <span class="bi bi-coin"></span>
                         <span class="ml-2">Digital Nudging</span>
                     </a>
