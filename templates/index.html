@@ -32,7 +32,7 @@
         <div class="row">
             <!-- sidebar -->
             <div class="col-md-3 col-lg-2 px-0 position-fixed h-100 bg-white shadow sidebar" id="sidebar">
-                <h1 class="bi bi-activity text-primary d-flex my-4 justify-content-center"></h1>
+                <h1 class="bi bi-twitter text-primary d-flex my-4 justify-content-center"></h1>
                 <div class="list-group rounded-0">
                     <a href="{{url_for('index')}}"
                         class="list-group-item list-group-item-action {{ 'active' if active_page == 'index' else '' }} border-0 d-flex align-items-center">
@@ -42,15 +42,20 @@
 
                     <a href="{{url_for('sentiments')}}"
                         class="list-group-item list-group-item-action {{ 'active' if active_page == 'query' else '' }} border-0 align-items-center">
-                        <span class="bi bi-file-person"></span>
+                        <span class="bi bi-bar-chart-steps"></span>
                         <span class="ml-2">Query</span>
                     </a>
                     <a href="{{url_for('analysis')}}"
                     class="list-group-item list-group-item-action {{ 'active' if active_page == 'analysis' else '' }} border-0 align-items-center">
-                    <span class="bi bi-file-person"></span>
+                    <span class="bi bi-clipboard-data"></span>
                     <span class="ml-2">Analysis</span>
                 </a>
-                    <a href=""
+                <a href="{{url_for('network')}}"
+                class="list-group-item list-group-item-action {{ 'active' if active_page == 'network' else '' }} border-0 align-items-center">
+                <span class="bi bi-reception-4"></span>
+                <span class="ml-2">Network Analysis</span>
+            </a>
+                    <a href="{{url_for('digitalNudging')}}"
                         class="list-group-item list-group-item-action {{ 'active' if active_page == 'nudge' else '' }} border-0 align-items-center">
                         <span class="bi bi-coin"></span>
                         <span class="ml-2">Digital Nudging</span>

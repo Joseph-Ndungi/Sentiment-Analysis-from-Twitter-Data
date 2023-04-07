@@ -26,6 +26,9 @@ from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 import numpy as np
+from statsmodels.tsa.seasonal import seasonal_decompose
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 
 
 
@@ -335,5 +338,81 @@ def analysis():
                              tNeu=neutral_tweets_count,
                              message=message)
 
+
+
+@app.route('/network', methods=['GET', 'POST'])
+def network():
+    #network analysis
+    #open the csv file
+    df = pd.read_csv('Corona_NLP_test.csv')
+    df['created_at'] = pd.to_datetime(df['TweetAt'], format='%d-%m-%Y')
+    # set the 'created_at' column as the index
+    df.set_index('created_at', inplace=True)
+
+    # resample the data to a daily frequency
+    daily_counts = df.resample('D').size()
+
+    # plot the time series of daily tweet counts and dump the plotly figure into a json string
+    fig = px.line(daily_counts, title="Daily Tweet Counts")
+    fig.update_layout(
+        title="Daily Tweet Counts",
+        xaxis_title="Date",
+        yaxis_title="Frequency",
+        font=dict(
+            family="Courier New, monospace",
+            size=18,
+            color="#7f7f7f"
+        )
+    )
+    fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+  # decompose the time series into trend, seasonal, and residual components
+    decomposition = seasonal_decompose(daily_counts, model='additive', period=7)
+    # plot the trend, seasonal, and residual components
+    fig2 = make_subplots(rows=4, cols=1, shared_xaxes=True, vertical_spacing=0.1)
+    fig2.add_trace(go.Scatter(x=daily_counts.index, y=decomposition.trend, name='Trend'), row=1, col=1)
+    fig2.add_trace(go.Scatter(x=daily_counts.index, y=decomposition.seasonal, name='Seasonality'), row=2, col=1)
+    fig2.add_trace(go.Scatter(x=daily_counts.index, y=decomposition.resid, name='Residuals'), row=3, col=1)
+    fig2.add_trace(go.Scatter(x=daily_counts.index, y=daily_counts, name='Original'), row=4, col=1)
+    fig2.update_layout(
+        title="Time Series Decomposition",
+        xaxis_title="Date",
+        yaxis_title="Frequency",
+        font=dict(
+            family="Courier New, monospace",
+            size=18,
+            color="#7f7f7f"
+        )
+    )
+    fig2 = json.dumps(fig2, cls=plotly.utils.PlotlyJSONEncoder)
+
+    # # create a list of the top 10 most frequently used hashtags
+    # hashtags = []
+    # for tweet in df['OriginalTweet']:
+    #     hashtags.extend(re.findall(r"#(\w+)", tweet))
+    # top_10_hashtags = Counter(hashtags).most_common(10)
+    # top_10_hashtags = dict(top_10_hashtags)
+
+    # # plot the top 10 most frequently used hashtags
+    # fig3 = px.bar(top_10_hashtags, x=list(top_10_hashtags.keys()), y=list(top_10_hashtags.values()), title="Top 10 Hashtags")
+    # fig3.update_layout(
+    #     title="Top 10 Hashtags",
+    #     xaxis_title="Hashtag",
+    #     yaxis_title="Frequency",
+    #     font=dict(
+    #         family="Courier New, monospace",
+    #         size=18,
+    #         color="#7f7f7f"
+    #     )
+    # )
+    # fig3 = json.dumps(fig3, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return render_template('network.html',
+                            fig=fig,fig2=fig2,
+                                title='Network Analysis')
+
+@app.route('/digitalNudging', methods=['GET', 'POST'])
+def digitalNudging():
+    return render_template('nudge.html', title='Digital Nudging')
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)

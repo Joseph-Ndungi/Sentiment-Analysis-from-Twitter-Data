@@ -38,16 +38,20 @@
 <div>
     <div id='distribution'></div>
     <div id='polarity'></div>
+    <p>
+        This would give you a visualization of how positive or negative the tweets are towards the brand,
+         and could help you identify areas for improvement in your brand's online reputation.
+    </p>
     <div id='topics'></div>
     <p>{{message}}</p>
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
     <script type='text/javascript'>
       var graphs = {{fig3 | safe}};
-      Plotly.plot('distribution',graphs,{});
+      Plotly.plot('polarity',graphs,{});
 </script>
     <script type='text/javascript'>
         var graphs = {{fig2 | safe}};
-        Plotly.plot('polarity',graphs,{});
+        Plotly.plot('distribution',graphs,{});
     </script>
 <script type='text/javascript'>
     var graphs = {{fig4 | safe}};

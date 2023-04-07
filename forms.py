@@ -99,6 +99,63 @@ class DateForm(FlaskForm):
 # plt.show()
 
 
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# from statsmodels.tsa.seasonal import seasonal_decompose
+
+# # load the tweets data into a pandas dataframe
+# df = pd.read_csv('Corona_NLP_test.csv')
+
+# # convert the 'created_at' column to a datetime object and specify the format of the date
+# df['created_at'] = pd.to_datetime(df['TweetAt'], format='%d-%m-%Y')
+
+
+# # set the 'created_at' column as the index
+# df.set_index('created_at', inplace=True)
+
+# # resample the data to a daily frequency
+# daily_counts = df.resample('D').size()
+
+# # plot the time series of daily tweet counts
+# plt.plot(daily_counts)
+# plt.xlabel('Date')
+# plt.ylabel('Tweet Count')
+# plt.title('Daily Tweet Counts')
+# plt.show()
+
+# # #resample the data to hourly frequency
+# # hourly_counts = df.resample('H').size()
+
+# # # plot the time series of hourly tweet counts
+# # plt.plot(hourly_counts)
+# # plt.xlabel('Date')
+# # plt.ylabel('Tweet Count')
+# # plt.title('Hourly Tweet Counts')
+# # plt.show()
+
+# # decompose the time series into trend, seasonal, and residual components
+# decomposition = seasonal_decompose(daily_counts, model='additive', period=7)
+# trend = decomposition.trend
+# seasonal = decomposition.seasonal
+# residual = decomposition.resid
+
+# # plot the decomposed components
+# plt.subplot(411)
+# plt.plot(daily_counts, label='Original')
+# plt.legend(loc='upper left')
+# plt.subplot(412)
+# plt.plot(trend, label='Trend')
+# plt.legend(loc='upper left')
+# plt.subplot(413)
+# plt.plot(seasonal,label='Seasonality')
+# plt.legend(loc='upper left')
+# plt.subplot(414)
+# plt.plot(residual, label='Residuals')
+# plt.legend(loc='upper left')
+# plt.tight_layout()
+# plt.show()
+
+
 
 
 

@@ -11,7 +11,7 @@ query = '(twitter) -is:retweet lang:en'
 tweets = tweepy.Paginator(client.search_recent_tweets, query=query,
                               tweet_fields = ["author_id","text","geo","public_metrics","possibly_sensitive",
                                     #"promoted_metrics","organic_metrics","non_public_metrics"
-                                    "referenced_tweets","reply_settings","source","withheld"], max_results=100).flatten(limit=1000)
+                                    "referenced_tweets","reply_settings","source","withheld","created_at"], max_results=100).flatten(limit=1000)
 
 import itertools
 
