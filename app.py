@@ -3,12 +3,10 @@ import tweepy as tw
 from dotenv import load_dotenv
 import pandas as pd
 import json
-
-
-#import time
 import requests
 load_dotenv()
-    
+from dotenv import load_dotenv
+
 client = tw.Client(bearer_token = os.environ["Bearer_Token"], 
                 consumer_key = os.environ["API_KEY"], 
                 consumer_secret = os.environ["API_KEY_SECRET"], 

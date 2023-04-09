@@ -4,18 +4,7 @@ import numpy as np
 # Clean Data
 clean_data = pd.read_csv("Variables3.csv")
 
-
-# def tag_status(booleanStatus):
-#     if booleanStatus == True:
-#         return 1
-#     else:
-#         return 0
-    
-# clean_data["Verified"] = clean_data["Verified"].apply(tag_status)
-# clean_data["Protected"] = clean_data["Protected"].apply(tag_status)
-# clean_data["VerifiedRetweet"] = clean_data["VerifiedRetweet"].apply(tag_status)
 clean_data["VerifiedRetweet"].fillna(1, inplace=True)  # Remove NA values
-
 
 def tag_location(location):
     if isinstance(location, str) and location.strip():
@@ -23,7 +12,6 @@ def tag_location(location):
     else:
         return "Non-Tagged"
     
-
 clean_data["Location"] = clean_data["Location"].apply(tag_location)
 
 #check the followers column for values greater than 500
@@ -50,23 +38,8 @@ def tag_characters(characters):
     else:
         return False
 
-
 clean_data["Character"] = clean_data["Character"].apply(tag_characters)
-
-
-
 clean_data.fillna(1, inplace=True)  # Convert NA values to 1
-
-
-def create_train_test(data, size=0.8, train=True):
-    n_row = data.shape[0]
-    total_row = int(size * n_row)
-    train_sample = np.arange(0, total_row)
-    if train:
-        return data.iloc[train_sample,:]
-    else:
-        return data.iloc[-train_sample,:]
-
 clean_data1 = clean_data.drop(["Text"], axis=1) # remove unwanted variables
 clean_data1 = clean_data1.drop(["Source"], axis=1) # remove unwanted variables
 clean_data1 = clean_data1.drop(["Unnamed: 0"], axis=1) # remove unwanted variables
@@ -187,15 +160,30 @@ print(classification_report(y_test, y_pred))
 # Print the feature importances
 print(best_rf_model.feature_importances_)
 
-# Plot the feature importances
-plt.figure(figsize=(10,5))
-plt.bar(X_train.columns, best_rf_model.feature_importances_)
-plt.show()
 
 #save the model
 import pickle
 filename = 'finalized_model.sav'
 pickle.dump(best_rf_model, open(filename, 'wb'))
+
+
+import pickle
+with open('finalized_model.sav', 'rb') as f:
+    model = pickle.load(f)
+
+# Prepare input data
+#input_data = [[1, 0, 10000, 1, 140], [0, 1, 5000, 0, 120]]
+input_data = X_test
+
+# Make predictions
+predictions = model.predict(input_data)
+
+# Interpret predictions
+print(predictions)
+
+
+
+
 
 
 

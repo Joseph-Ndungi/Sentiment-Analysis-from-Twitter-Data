@@ -1,11 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file
 import json
 import pandas as pd
 from forms import *
 import csv
 import json
 import itertools
-import pandas as pd
 import requests
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
@@ -29,11 +28,28 @@ import numpy as np
 from statsmodels.tsa.seasonal import seasonal_decompose
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import pickle
 
 
+def tag_followers(followers):
+    if followers >= 500:
+        return True
+    else:
+        return False
 
+def count_characters(text):
+    if isinstance(text, str):
+        return len(text)
+    else:
+        return 0
+    
+def tag_characters(characters):
+    if characters >= 100:
+        return True
+    else:
+        return False  
 client = tweepy.Client(bearer_token=os.environ["Bearer_Token"])
-
+ALLOWED_EXTENSIONS = set(['csv'])
 
 
 app = Flask(__name__)
@@ -63,10 +79,11 @@ def sentiments():
         query = form.query.data + ' -is:retweet lang:en'
         tweets = tweepy.Paginator(client.search_recent_tweets, query=query,
                               tweet_fields = ["author_id","text","geo","public_metrics","possibly_sensitive",
-                                    #"promoted_metrics","organic_metrics","non_public_metrics"
                                     "referenced_tweets","reply_settings","source","withheld"], max_results=100).flatten(limit=1000)
         
         tweets_list = list(itertools.chain(tweets))
+
+        flash(f'Number of tweets: {len(tweets_list)}', 'success')
 
         tweets_dict = [dict((k, v) for k, v in d.items() if k != 'id' and k != 'edit_history_tweet_ids') for d in tweets_list]
 
@@ -74,23 +91,10 @@ def sentiments():
 
         df= df['text']
         df = df.str.replace('[^a-zA-Z0-9\s]', '')
-        stopwordlist = ['a', 'about', 'above', 'after', 'again', 'ain', 'all', 'am', 'an','http'
-             'and','any','are', 'as', 'at', 'be', 'because', 'been', 'before',
-             'being', 'below', 'between','both', 'by', 'can', 'd', 'did', 'do',
-             'does', 'doing', 'down', 'during', 'each','few', 'for', 'from',
-             'further', 'had', 'has', 'have', 'having', 'he', 'her', 'here',
-             'hers', 'herself', 'him', 'himself', 'his', 'how', 'i', 'if', 'in',
-             'into','is', 'it', 'its', 'itself', 'just', 'll', 'm', 'ma',
-             'me', 'more', 'most','my', 'myself', 'now', 'o', 'of', 'on', 'once',
-             'only', 'or', 'other', 'our', 'ours','ourselves', 'out', 'own', 're','s', 'same', 'she', "shes", 'should', "shouldve",'so', 'some', 'such',
-             't', 'than', 'that', "thatll", 'the', 'their', 'theirs', 'them',
-             'themselves', 'then', 'there', 'these', 'they', 'this', 'those',
-             'through', 'to', 'too','under', 'until', 'up', 've', 'very', 'was',
-             'we', 'were', 'what', 'when', 'where','which','while', 'who', 'whom',
-             'why', 'will', 'with', 'won', 'y', 'you', "youd","youll", "youre",
-             "youve", 'your', 'yours', 'yourself', 'yourselves']
 
-        STOPWORDS = set(stopwordlist)
+        #STOPWORDS = set(stopwordlist)
+        STOPWORDS= set(stopwords.words('english'))
+
         df = df.apply(lambda x: " ".join(x for x in x.split() if x not in STOPWORDS))
         dfData=df
         df = df.to_json(orient='records')
@@ -99,6 +103,8 @@ def sentiments():
 
         hf_token = "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"
         model="cardiffnlp/twitter-xlm-roberta-base-sentiment"
+
+        #flash(f'Using model: {model}', 'success')
 
         API_URL = "https://api-inference.huggingface.co/models/" + model
         headers = {"Authorization": "Bearer %s" % (hf_token)}
@@ -130,23 +136,24 @@ def sentiments():
         print(sentiment_counts)
 
         #visualize in a pie chart
-        fig= px.pie(df, values=sentiment_counts, names=sentiment_counts.index, title='Sentiment Analysis')
+        fig= px.pie(df, values=sentiment_counts, names=sentiment_counts.index, title= f'Sentiment Analysis Using model: {model}')
         graph1 = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
 
         
         # sentiment_counts.plot(kind='pie', autopct='%1.0f%%')
         # plt.show()
+        #flash('Generating Wordclouds...', 'info')
 
         positive_tweets = df['text'][df["label"] == 'positive']
         #positive_tweets.to_csv('positivetweets.csv', index = False)
 
         stop_words = ["https", "co", "RT"] + list(STOPWORDS)
 
-        wordcloud = WordCloud(width = 3000, height = 2000, random_state=1, background_color='black', colormap='Set2', collocations=False, stopwords = stop_words, max_words = 200).generate(str(positive_tweets))
+        pwordcloud = WordCloud(width = 3000, height = 2000, random_state=1, background_color='black', colormap='Set2', collocations=False, stopwords = stop_words, max_words = 200).generate(str(positive_tweets))
         #use px to create a plotly figure of the wordcloud
-        fig = px.imshow(wordcloud)
-        fig.update_layout(
+        pfig = px.imshow(pwordcloud)
+        pfig.update_layout(
             title="Wordcloud of Positive Tweets",
             xaxis_title="Word",
             yaxis_title="Frequency",
@@ -158,15 +165,15 @@ def sentiments():
         )
         #fig.show()
         #dump the plotly figure into a json string
-        fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+        pfig = json.dumps(pfig, cls=plotly.utils.PlotlyJSONEncoder)
 
         #negative_tweets wordcloud
         negative_tweets = df['text'][df["label"] == 'negative']
-        wordcloud = WordCloud(width = 3000, height = 2000, random_state=1, background_color='black', colormap='Set2', collocations=False, stopwords = stop_words, max_words = 200).generate(str(negative_tweets))
+        nWordcloud = WordCloud(width = 3000, height = 2000, random_state=1, background_color='black', colormap='Set2', collocations=False, stopwords = stop_words, max_words = 200).generate(str(negative_tweets))
         #use px to create a plotly figure of the wordcloud
-        fig = px.imshow(wordcloud)
-        fig.update_layout(
-            title="Wordcloud of Positive Tweets",
+        fig1 = px.imshow(nWordcloud)
+        fig1.update_layout(
+            title="Wordcloud of Negative Tweets",
             xaxis_title="Word",
             yaxis_title="Frequency",
             font=dict(
@@ -177,7 +184,7 @@ def sentiments():
         )
         #fig.show()
         #dump the plotly figure into a json string
-        fig1 = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+        fig1 = json.dumps(fig1, cls=plotly.utils.PlotlyJSONEncoder)
 
         #neutral_tweets wordcloud
         neutral_tweets = df['text'][df["label"] == 'neutral']
@@ -201,12 +208,10 @@ def sentiments():
 
         
 
-        return render_template('query.html', form=form, graph1=graph1, wordcloud=fig,
-                               wordcloud1=fig1, wordcloud2=fig2, title='Sentiment Analysis')
-
-
-    
-    return render_template('query.html', form=form,title='Sentiment Analysis')
+        return render_template('query.html', form=form, graph1=graph1, pfig=pfig,
+                               fig1=fig1, fig2=fig2, title='Sentiment Analysis')
+    else:
+        return render_template('query.html', form=form, title='Sentiment Analysis') 
 
 @app.route('/analysis', methods=['GET', 'POST'])
 def analysis():
@@ -306,8 +311,6 @@ def analysis():
     for i, topic in enumerate(lda_model.components_):
         word_idx = np.argsort(topic)[::-1][:10]
         topic_words[i] = [vectorizer.get_feature_names_out()[i] for i in word_idx]
-        #print('Topic {}: {}'.format(i, ' '.join(topic_words[i])))
-        #message += 'Topic {}: {}'.format(i, ' '.join(topic_words[i]))
         line = 'Topic {}: {}\n'.format(i, ' '.join(topic_words[i]))
         message += line
  
@@ -340,8 +343,8 @@ def analysis():
 
 
 
-@app.route('/network', methods=['GET', 'POST'])
-def network():
+@app.route('/timeSeries', methods=['GET', 'POST'])
+def timeSeries():
     #network analysis
     #open the csv file
     df = pd.read_csv('Corona_NLP_test.csv')
@@ -412,7 +415,42 @@ def network():
                                 title='Network Analysis')
 
 @app.route('/digitalNudging', methods=['GET', 'POST'])
-def digitalNudging():
-    return render_template('nudge.html', title='Digital Nudging')
+def digitalNudging(): 
+        if request.method == 'POST':
+            # get the file from the post request
+            file = request.files['file']
+            df = pd.read_csv(file)
+    
+            df['Followers'] = df['Followers'].apply(tag_followers)
+  
+            df['Character'] = df['Text'].apply(count_characters)
+
+            df["Character"] = df["Character"].apply(tag_characters)
+            df.fillna(1, inplace=True)  # Convert NA values to 1
+            
+            features=['Verified', 'Protected', 'Followers', 'VerifiedRetweet', 'Character']
+
+            df=df[features]
+
+            # load the model from disk
+            with open('finalized_model.sav', 'rb') as f:
+                model = pickle.load(f)
+
+            # make a prediction
+            prediction = model.predict(df)
+
+            # add the prediction as a new column
+            df['Prediction'] = prediction
+
+            # convert the dataframe to a csv file
+            df.to_csv('prediction.csv', index=False)
+
+            # download the csv file
+            return send_file('prediction.csv',
+                            mimetype='text/csv',
+                            as_attachment=True)
+        else:
+            return render_template('nudge.html', title='Digital Nudging')
+
 if __name__ == '__main__':
     app.run(debug=True)
