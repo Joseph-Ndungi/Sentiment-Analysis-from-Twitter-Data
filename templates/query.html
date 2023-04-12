@@ -1,0 +1,55 @@
+{% extends "index.html" %} {% set active_page = "query" %} {%
+    block title%} {{ title }} {% endblock %} {% block content%}
+
+    <div>
+      <h3 class="text-muted">Get Sentiments from Twitter Data for the Desired Query</h3> </br>
+        <form action="{{ request.path }}" method="POST">
+          {{ form.csrf_token }} {{ form.hidden_tag() }}
+          <div class="row">
+            <div class="col-md-2">
+              <label> Start Date</label>
+              {{ form.startDate(class='form-control',type='date') }}
+            </div>
+            <div class="col-md-2">
+              <label> End Date</label>
+              {{ form.endDate(class='form-control',type='date') }}
+            </div>
+            <div class="col-md-2">
+              <label> Query</label>
+              {{ form.query(class='form-control',placeholder="Enter Query") }}
+            </div>
+            <div class="col-md-2">
+                <label> Make Query</label> </br>
+              <button class="btn btn-primary" type="submit" value="submit">
+                Submit
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+</br></br>
+
+<div>
+    <div id='pie'></div>
+    <div id='positive'></div>
+    <div id='negative'></div>
+    <div id='neutral'></div>
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+    <script type='text/javascript'>
+      var graphs = {{graph1 | safe}};
+      Plotly.plot('pie',graphs,{});
+    </script>
+        <script type='text/javascript'>
+          var graphs = {{pfig | safe}};
+          Plotly.plot('positive',graphs,{});
+        </script>
+    <script type='text/javascript'>
+      var graphs = {{fig1 | safe}};
+      Plotly.plot('negative',graphs,{});
+    </script>
+        <script type='text/javascript'>
+          var graphs = {{fig2 | safe}};
+          Plotly.plot('neutral',graphs,{});
+        </script>
+</div>
+{% endblock%}
